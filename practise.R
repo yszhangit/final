@@ -19,9 +19,46 @@ original_books <- austen_books() %>%
                                                  ignore_case = TRUE)))) %>%
   ungroup()
 
-original_books
+# original_books
 
+# tokenization
 tidy_books <- original_books %>% unnest_tokens(word, text)
 tidy_books
 
-# 
+# remove stop words
+data("stop_words")
+tidy_books <- tidy_books %>% anti_join(stop_words)
+
+# word fequence
+tidy_books %>% count(word, sort=T)
+
+# wordcloud
+library(wordcloud)
+tidy_books %>% anti_join(stop_words) %>% count(word) %>% with(wordcloud(word, n, max.words = 100))
+
+### uni-gram/sentiment
+sentiments
+# three types of lexicon
+get_sentiments('afinn')
+get_sentiments('bing')
+get_sentiments('nrc')
+# different expression of sentiments
+get_sentiments('nrc') %>% group_by(sentiment) %>% summarise(n())
+
+# multi word sentiment
+bingnegative <- get_sentiments("bing") %>% 
+  filter(sentiment == "negative")
+
+wordcounts <- tidy_books %>%
+  group_by(book, chapter) %>%
+  summarize(words = n())
+
+tidy_books %>%
+  semi_join(bingnegative) %>%
+  group_by(book, chapter) %>%
+  summarize(negativewords = n()) %>%
+  left_join(wordcounts, by = c("book", "chapter")) %>%
+  mutate(ratio = negativewords/words) %>%
+  filter(chapter != 0) %>%
+  top_n(1) %>%
+  ungroup()
