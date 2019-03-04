@@ -62,3 +62,14 @@ tidy_books %>%
   filter(chapter != 0) %>%
   top_n(1) %>%
   ungroup()
+
+# tf-idf, intended to measure how important a word is to a document
+# inverse document frequency (idf), which decreases the weight for commonly used words and increases the weight for words 
+# that are not used very much in a collection of documents. 
+# This can be combined with term frequency to calculate a term's tf-idf (the two quantities multiplied together)
+
+
+# Zipf's law states that the frequency that a word appears is inversely proportional to its rank.
+
+
+
