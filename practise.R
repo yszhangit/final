@@ -81,3 +81,39 @@ total_words <- book_words %>%
 
 book_words <- left_join(book_words, total_words)
 book_words
+# note tf_idf and idf are near zero for common words
+book_words %>% bind_tf_idf(word, book, n )
+# important word
+book_words %>% bind_tf_idf(word, book, n ) %>% arrange(desc(tf_idf))
+
+# n-gram
+austen_bigrams <- austen_books() %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+austen_bigrams
+# lot of stop words, to remove, do it after tokenized
+library(tidyr)
+bigrams_separated <- austen_bigrams %>%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams_filtered <- bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+# new bigram counts:
+bigram_counts <- bigrams_filtered %>% 
+  count(word1, word2, sort = TRUE)
+
+bigram_counts
+
+# 3-gram
+austen_books() %>%
+  unnest_tokens(trigram, text, token = "ngrams", n = 3) %>%
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>%
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>%
+  count(word1, word2, word3, sort = TRUE)
+
+# sentiment analysis
+
