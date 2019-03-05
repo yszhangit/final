@@ -19,8 +19,6 @@ original_books <- austen_books() %>%
                                                  ignore_case = TRUE)))) %>%
   ungroup()
 
-# original_books
-
 # tokenization
 tidy_books <- original_books %>% unnest_tokens(word, text)
 tidy_books
@@ -39,6 +37,7 @@ tidy_books %>% anti_join(stop_words) %>% count(word) %>% with(wordcloud(word, n,
 ### uni-gram/sentiment
 sentiments
 # three types of lexicon
+
 get_sentiments('afinn')
 get_sentiments('bing')
 get_sentiments('nrc')
@@ -71,5 +70,14 @@ tidy_books %>%
 
 # Zipf's law states that the frequency that a word appears is inversely proportional to its rank.
 
+book_words <- austen_books() %>%
+  unnest_tokens(word, text) %>%
+  count(book, word, sort = TRUE) %>%
+  ungroup()
 
+total_words <- book_words %>% 
+  group_by(book) %>% 
+  summarize(total = sum(n))
 
+book_words <- left_join(book_words, total_words)
+book_words
