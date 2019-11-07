@@ -141,6 +141,11 @@ bigram_counts <- bigrams_filtered %>%
 
 bigram_counts
 
+# combine
+bigrams_united <- bigrams_filtered %>%
+  unite(bigram, word1, word2, sep = " ")
+
+bigrams_united
 # 3-gram
 austen_books() %>%
   unnest_tokens(trigram, text, token = "ngrams", n = 3) %>%
