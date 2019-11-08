@@ -1,0 +1,66 @@
+---
+title: "n-gram milestone report"
+author: "yinshu zhang"
+date: "November 7, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#library(textclean)
+library(dplyr)
+library(ggplot2)
+library(wordcloud)
+library(tidytext)
+library(downloader)
+```
+
+# background
+This report is a peer-graded assignment, requirement can be found https://www.coursera.org/learn/data-science-project/peer/BRX21/milestone-report.
+
+The goal of this project is to create a n-gram model, A n-gram model is a type of probabilitstic language model, for predicting next word or words base on given input. Before using n-gram to find the correlation and relationships of word, We will conduct a simple exploratory analysis of input text.
+
+This report shows the frequency of words, lot of time we interested in what is mentioned amount set of text, for example in newspaper, what word is used more than others. The input data we use is provided by SwiftKey, there are 3 files in English we will use, news, blogs, and tweeter. 
+
+```{r download}
+#url <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+#download(url, dest="dl.zip", mode="wb")
+#unzip('dl.zip', exdir="./")
+```
+
+# clean up 
+`unnest_token` function in tidytext provide convinent way to split lines into token, in this case, one word, lot of traditional steps that require to remove non-ascii charactors and punctuations are not required.
+
+another important steps is to remove "stop words", stop words are words that are not useful for an analysis, typically extremely common words such as “the”, “of”, “to” etc., we will use anti-join `stop_words` from tidytext against the input.
+
+this function shows 3 simple steps to return a list of frequency of all words, and sort the frequency too. Two columns are word, and frequency(n)
+
+```{r function}
+# return sorted frequency of token(word)
+get_word_cnt <- function(input) {
+  words <- tibble(text = input) %>% unnest_tokens(word, text)
+  words <- words %>% anti_join(stop_words, by="word")
+  word_cnt <- words %>% count(word, sort=T)
+  word_cnt
+}
+```
+
+
+```{r news}
+# read file
+news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T, n=10000)
+
+# count word frequency
+word_cnt <- get_word_cnt(news)
+
+# plot top 20 word freq
+word_cnt %>% filter(n >= as.integer(word_cnt[20,2]) ) %>%
+  mutate(word=reorder(word,n)) %>%
+  ggplot(aes(word,n)) + geom_col()+ coord_flip()
+# cloud
+word_cnt %>% with(wordcloud(word, n, random.order=F, max.words = 50, colors=brewer.pal(6,"Dark2")))
+
+```
+
+
+

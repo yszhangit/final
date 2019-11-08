@@ -1,3 +1,6 @@
+/report_*
 *.txt
 .RData
 .Rhistory
+*RData
+*.zip
