@@ -55,8 +55,8 @@ get_word_cnt <- function(input) {
 The report present three analysis, on each file, first "news"
 ```{r load_news}
 # read file
-news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T, n=10000)
-#news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T)
+#news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T, n=10000)
+news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T)
 news <- gsub('\\d+', '', news)
 # count word frequency
 word_cnt <- get_word_cnt(news)
@@ -93,7 +93,7 @@ word_cnt %>% with(wordcloud(word, n, random.order=F, max.words = 50, colors=brew
 same analysis for blog
 
 ```{r blogs}
-blogs <- readLines("./final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = T, n=10000)
+blogs <- readLines("./final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = T)
 blogs <- gsub('\\d+', '', blogs)
 word_cnt <- get_word_cnt(blogs)
 word_cnt %>%  ggplot(aes(n)) +  geom_histogram(bins = 20) +  
@@ -112,7 +112,7 @@ word_cnt %>% with(wordcloud(word, n, random.order=F, max.words = 50, colors=brew
 ## Tweets
 
 ```{r tw}
-tw <- readLines("./final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = T, n=10000)
+tw <- readLines("./final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = T)
 tw <- gsub('\\d+', '', tw)
 word_cnt <- get_word_cnt(tw)
 word_cnt %>%  ggplot(aes(n)) +  geom_histogram(bins = 20) +  
