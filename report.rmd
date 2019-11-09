@@ -20,7 +20,9 @@ This report is a peer-graded assignment, requirement can be found https://www.co
 
 The goal of this project is to create a n-gram model, A n-gram model is a type of probabilitstic language model, for predicting next word or words base on given input. Before using n-gram to find the correlation and relationships of word, We will conduct a simple exploratory analysis of input text.
 
-This report shows the frequency of words, lot of time we interested in what is mentioned amount set of text, for example in newspaper, what word is used more than others. The input data we use is provided by SwiftKey, there are 3 files in English we will use, news, blogs, and tweeter. 
+This report shows the frequency of words, lot of time we interested in what is mentioned amount set of text, for example in newspaper, what word is used more than others. 
+
+The input data we use is provided by SwiftKey, there are 3 files in English we will use, news, blogs, and tweeter. 
 
 ```{r download}
 #url <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
@@ -28,39 +30,100 @@ This report shows the frequency of words, lot of time we interested in what is m
 #unzip('dl.zip', exdir="./")
 ```
 
-# clean up 
-`unnest_token` function in tidytext provide convinent way to split lines into token, in this case, one word, lot of traditional steps that require to remove non-ascii charactors and punctuations are not required.
+# clean up by removing meaningless
+`unnest_token` function in tidytext provide convinent way to split lines into token, it does *NOT* require preprocess input text, in the past we need to "cleanup" text, for example remove non-ascii charactors, punctuations, remove or emoji, current software can tokenize text without this CPU comsuming step.
 
-another important steps is to remove "stop words", stop words are words that are not useful for an analysis, typically extremely common words such as “the”, “of”, “to” etc., we will use anti-join `stop_words` from tidytext against the input.
+Our clean up is focus on removing stop words. Stop words are words that are not useful for an analysis, typically extremely common words such as “the”, “of”, “to” etc., we will use anti-join `stop_words` from tidytext against.
 
-this function shows 3 simple steps to return a list of frequency of all words, and sort the frequency too. Two columns are word, and frequency(n)
+When it come to digits, it's not in the interest of text mining in general, we indlcude removing digits in function, however argument can be made it does carry information.
+
+Below function `get_word_cnt` involves three simple steps, tokenizing, remove stop words, count and sort, in the end it return a list of frequency of words, two columns are word, and frequency(n).
 
 ```{r function}
 # return sorted frequency of token(word)
 get_word_cnt <- function(input) {
   words <- tibble(text = input) %>% unnest_tokens(word, text)
   words <- words %>% anti_join(stop_words, by="word")
+#  kintr prompt error, use gsub outside of function
+#  words <- gsub('\\d+', '', words)
   word_cnt <- words %>% count(word, sort=T)
   word_cnt
 }
 ```
 
-
-```{r news}
+# analysis
+The report present three analysis, on each file, first "news"
+```{r load_news}
 # read file
 news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T, n=10000)
-
+#news <- readLines("./final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = T)
+news <- gsub('\\d+', '', news)
 # count word frequency
 word_cnt <- get_word_cnt(news)
+```
+## distribution of frequence
+There are total word: `r sum(word_cnt$n)`, number of unique word `r length(word_cnt$n)`.
+Below plot show the distribution of frequence of words. The x axis is how many words appeared how many time, for example the left most column log(10)=1; means how many word appeared between one and ten, we can see there are a lot, think of names or other infrequence word.
 
+```{r news_dist}
+# distribution of word frequence
+word_cnt %>%  ggplot(aes(n)) +  geom_histogram(bins = 20) +  
+  scale_x_continuous(trans = "log10", breaks = c(0,1,3,4,5,10,30,100)) +  
+  xlab("word freq log10")
+```
+
+## top words
+Now we want to see frequent word, below are top 20 
+``` {r news_top}
 # plot top 20 word freq
 word_cnt %>% filter(n >= as.integer(word_cnt[20,2]) ) %>%
   mutate(word=reorder(word,n)) %>%
   ggplot(aes(word,n)) + geom_col()+ coord_flip()
+```
+
+## word cloud
+lastly, word cloud gives good visual of freqent word, bigger the font, more frequent it appears.
+
+``` {r news_cloud}
 # cloud
+word_cnt %>% with(wordcloud(word, n, random.order=F, max.words = 50, colors=brewer.pal(6,"Dark2")))
+```
+
+## blog
+same analysis for blog
+
+```{r blogs}
+blogs <- readLines("./final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = T, n=10000)
+blogs <- gsub('\\d+', '', blogs)
+word_cnt <- get_word_cnt(blogs)
+word_cnt %>%  ggplot(aes(n)) +  geom_histogram(bins = 20) +  
+  scale_x_continuous(trans = "log10", breaks = c(0,1,3,4,5,10,30,100)) +  
+  xlab("word freq log10")
+
+word_cnt %>% filter(n >= as.integer(word_cnt[20,2]) ) %>%
+  mutate(word=reorder(word,n)) %>%
+  ggplot(aes(word,n)) + geom_col()+ coord_flip()
 word_cnt %>% with(wordcloud(word, n, random.order=F, max.words = 50, colors=brewer.pal(6,"Dark2")))
 
 ```
 
+*total word: `r sum(word_cnt$n)`, number of unique word `r length(word_cnt$n)`*
 
+## Tweets
 
+```{r tw}
+tw <- readLines("./final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = T, n=10000)
+tw <- gsub('\\d+', '', tw)
+word_cnt <- get_word_cnt(tw)
+word_cnt %>%  ggplot(aes(n)) +  geom_histogram(bins = 20) +  
+  scale_x_continuous(trans = "log10", breaks = c(0,1,3,4,5,10,30,100)) +  
+  xlab("word freq log10")
+
+word_cnt %>% filter(n >= as.integer(word_cnt[20,2]) ) %>%
+  mutate(word=reorder(word,n)) %>%
+  ggplot(aes(word,n)) + geom_col()+ coord_flip()
+word_cnt %>% with(wordcloud(word, n, random.order=F, max.words = 50, colors=brewer.pal(6,"Dark2")))
+
+```
+
+*total word: `r sum(word_cnt$n)`, number of unique word `r length(word_cnt$n)`*
