@@ -4,7 +4,7 @@ library(shiny)
 library(shinythemes)
 
 #setwd('~/dev/R/final')
-ngrams<-readRDS("grams_1pct.RData")
+ngrams<-readRDS("grams_10pct_filter.RData")
 debug_msg <- c()
 debug_msg_max <- 10
 
@@ -76,7 +76,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   output$prediction <- renderText({
-    if (input$txt != "" ) {
+    if (length(input$txt) > 0 ) {
       res <- match_next(extract_text(input$txt))
       text <- paste("<ol><font size=3em>n-gram used \"",res[1],"\":")
       if (length(res) ==1 ) {
