@@ -3,7 +3,8 @@ library(stringr)
 library(shiny)
 library(shinythemes)
 
-ngrams<-readRDS("~/dev/R/final/grams_1pct.RData")
+#setwd('~/dev/R/final')
+ngrams<-readRDS("grams_1pct.RData")
 debug_msg <- c()
 debug_msg_max <- 10
 
@@ -33,9 +34,9 @@ match_next <- function(input) {
       return(c('',next_word=c()))
   }
   index <- str_flatten(input, collapse = " ")
-  debug_msg <<- c(debug_msg,c(paste('try: ', index)))
+  debug_msg <<- c(c(paste('try: ', index)), debug_msg)
   if (length(debug_msg) > debug_msg_max) {
-    debug_msg <<- tail(debug_msg, n=debug_msg_max)
+    debug_msg <<- head(debug_msg, n=debug_msg_max)
   }
   res <- ngrams %>% filter(ind==index) %>% select(next_word,n)
   
@@ -67,23 +68,23 @@ ui <- fluidPage(
            )
     )
   ),
-  h6('suggestion:'),
-  fluidRow(htmlOutput("prediction")),
-  h6('debug:'),
-  fluidRow(htmlOutput("debug"))
+  fluidRow(
+    column(6, wellPanel( htmlOutput("prediction") )),
+    column(6, wellPanel( htmlOutput("debug") ))
+   )
 )
 
 server <- function(input, output) {
   output$prediction <- renderText({
     if (input$txt != "" ) {
       res <- match_next(extract_text(input$txt))
-      text <- paste("<ol><font size=5em>",res[1],":")
+      text <- paste("<ol><font size=3em>n-gram used \"",res[1],"\":")
       if (length(res) ==1 ) {
-        text <- paste(text," no suggestion found</font></ol>")
+        text <- paste(text," no suggestions.</font></ol>")
         return(text)
       }
       res <- tail(res, n=-1)
-      text <- paste(text, length(res), " suggestion found</font><li>")
+      text <- paste(text, " [ ", length(res), " ] </font><li>")
       if (length(res) > 10) {
         res <- head(res, n=10)
       }
