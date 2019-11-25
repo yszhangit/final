@@ -1,0 +1,33 @@
+N-gram word prediction
+========================================================
+author: Yinshu Zhang
+date: Nov. 25th 2019
+autosize: true
+
+Why predict next word
+========================================================
+- input prediction help to enhance user experience
+
+suggestion next word base on text mining results.
+- use case: search engine, mobile apps
+
+Old auto-complete is list of choice, modern day of prediciton is base on probability
+
+  
+
+n-Gram
+========================================================
+In text mining analyses, lot of time we are interested in relatinships between words, wether which words tend to follow other words immediately. 
+- By defination, n-gram is "a contiguous sequence of n items from a given sample of text or speech" - wikipedia
+
+Zero-frequency problem and backoff
+========================================================
+
+need something here
+========================================================
+
+Demo
+========================================================
+This is a prove of concept demo <https://yszhangit.shinyapps.io/final/>
+
+![](./slide_demo.png)
