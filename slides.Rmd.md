@@ -3,6 +3,8 @@ N-gram word prediction
 author: Yinshu Zhang
 date: Nov. 25th 2019
 autosize: true
+git repo: <https://github.com/yszhangit/final>
+
 
 Why predict next word
 ========================================================

@@ -71,7 +71,10 @@ ui <- fluidPage(
   fluidRow(
     column(6, wellPanel( htmlOutput("prediction") )),
     column(6, wellPanel( htmlOutput("debug") ))
-   )
+   ),
+  fluidRow(
+    h6("git repo: https://github.com/yszhangit/final")
+  )
 )
 
 server <- function(input, output) {
